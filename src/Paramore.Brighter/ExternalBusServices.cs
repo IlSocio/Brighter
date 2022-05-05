@@ -117,7 +117,7 @@ namespace Paramore.Brighter
             _lastOutStandingMessageCheckAt = DateTime.UtcNow;
         }
 
-        internal void ClearOutbox(params Guid[] posts)
+        internal void ClearOutbox(params string[] posts)
         {
             if (!HasOutbox())
                 throw new InvalidOperationException("No outbox defined.");
@@ -143,7 +143,7 @@ namespace Paramore.Brighter
             CheckOutstandingMessages();
         }
 
-        internal async Task ClearOutboxAsync(IEnumerable<Guid> posts, bool continueOnCapturedContext = false,
+        internal async Task ClearOutboxAsync(IEnumerable<string> posts, bool continueOnCapturedContext = false,
             CancellationToken cancellationToken = default(CancellationToken))
         {
 
@@ -368,7 +368,7 @@ namespace Paramore.Brighter
         {
             if (producer is ISupportPublishConfirmation producerSync)
             {
-                producerSync.OnMessagePublished += async delegate(bool success, Guid id)
+                producerSync.OnMessagePublished += async delegate(bool success, string id)
                 {
                     if (success)
                     {
@@ -387,7 +387,7 @@ namespace Paramore.Brighter
         {
             if (producer is ISupportPublishConfirmation producerSync)
             {
-                producerSync.OnMessagePublished += delegate(bool success, Guid id)
+                producerSync.OnMessagePublished += delegate(bool success, string id)
                 {
                     if (success)
                     {

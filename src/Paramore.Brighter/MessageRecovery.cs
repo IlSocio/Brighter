@@ -1,4 +1,4 @@
-#region Licence
+﻿#region Licence
 /* The MIT License (MIT)
 Copyright © 2014 Ian Cooper <ian_hammond_cooper@yahoo.co.uk>
 
@@ -52,7 +52,7 @@ namespace Paramore.Brighter
         private static IEnumerable<Message> GetMessagesFromOutBox(IAmAnOutboxSync<Message> outBox, IReadOnlyCollection<string> messageIds)
         {
             IEnumerable<Message> foundMessages = messageIds 
-                .Select(messageId => outBox.Get(Guid.Parse(messageId)))
+                .Select(messageId => outBox.Get(messageId))
                 .Where(fm => fm != null)
                 .ToList();
 

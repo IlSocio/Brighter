@@ -203,7 +203,7 @@ namespace Paramore.Brighter.Outbox.Sqlite
         /// <param name="messageId">The message identifier.</param>
         /// <param name="outBoxTimeout">Timeout for the outbox read, defaults to library default timeout</param>
         /// <returns>The message</returns>
-        public Message Get(Guid messageId, int outBoxTimeout = -1)
+        public Message Get(string messageId, int outBoxTimeout = -1)
         {
             var sql = string.Format("SELECT * FROM {0} WHERE MessageId = @MessageId", _configuration.OutBoxTableName);
             var parameters = new[] { CreateSqlParameter("@MessageId", messageId.ToString()) };
@@ -218,7 +218,7 @@ namespace Paramore.Brighter.Outbox.Sqlite
         /// <param name="outBoxTimeout">The time allowed for the read in milliseconds; on  a -2 default</param>
         /// <param name="cancellationToken">Allows the sender to cancel the request pipeline. Optional</param>
         /// <returns>A Message.</returns>
-        public async Task<Message> GetAsync(Guid messageId, int outBoxTimeout = -1, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<Message> GetAsync(string messageId, int outBoxTimeout = -1, CancellationToken cancellationToken = default(CancellationToken))
         {
             var sql = string.Format("SELECT * FROM {0} WHERE MessageId = @MessageId", _configuration.OutBoxTableName);
             var parameters = new[] { CreateSqlParameter("@MessageId", messageId.ToString()) };
@@ -233,7 +233,7 @@ namespace Paramore.Brighter.Outbox.Sqlite
                 .ConfigureAwait(ContinueOnCapturedContext);
         }
 
-        public async Task<IEnumerable<Message>> GetAsync(IEnumerable<Guid> messageIds, int outBoxTimeout = -1,
+        public async Task<IEnumerable<Message>> GetAsync(IEnumerable<string> messageIds, int outBoxTimeout = -1,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             var connection = _connectionProvider.GetConnection();
@@ -333,13 +333,13 @@ namespace Paramore.Brighter.Outbox.Sqlite
         /// <param name="id">The id of the message to update</param>
         /// <param name="dispatchedAt">When was the message dispatched, defaults to UTC now</param>
         /// <param name="cancellationToken">Allows the sender to cancel the request pipeline. Optional</param>
-        public Task MarkDispatchedAsync(Guid id, DateTime? dispatchedAt = null, Dictionary<string, object> args = null,
+        public Task MarkDispatchedAsync(string id, DateTime? dispatchedAt = null, Dictionary<string, object> args = null,
             CancellationToken cancellationToken = default)
         {
             return MarkDispatchedAsync(new[] {id}, dispatchedAt, args, cancellationToken);
         }
 
-        public async Task MarkDispatchedAsync(IEnumerable<Guid> ids, DateTime? dispatchedAt = null,
+        public async Task MarkDispatchedAsync(IEnumerable<string> ids, DateTime? dispatchedAt = null,
             Dictionary<string, object> args = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -357,7 +357,7 @@ namespace Paramore.Brighter.Outbox.Sqlite
         /// </summary>
         /// <param name="id">The id of the message to update</param>
         /// <param name="dispatchedAt">When was the message dispatched, defaults to UTC now</param>
-        public void MarkDispatched(Guid id, DateTime? dispatchedAt = null, Dictionary<string, object> args = null)
+        public void MarkDispatched(string id, DateTime? dispatchedAt = null, Dictionary<string, object> args = null)
         {
             var connection = _connectionProvider.GetConnection();
             if (connection.State != ConnectionState.Open) connection.Open();
@@ -486,7 +486,7 @@ namespace Paramore.Brighter.Outbox.Sqlite
             return new SqliteParameter(parameterName, value);
         }
 
-        private string GenerateInClauseAndAddParameters(SqliteCommand command, List<Guid> messageIds)
+        private string GenerateInClauseAndAddParameters(SqliteCommand command, List<string> messageIds)
         {
             var paramNames = messageIds.Select((s, i) => "@p" + i).ToArray();
 
@@ -559,7 +559,7 @@ namespace Paramore.Brighter.Outbox.Sqlite
             };
         }
 
-        private SqliteCommand InitMarkDispatchedCommand(SqliteConnection connection, IEnumerable<Guid> messageIds, DateTime? dispatchedAt)
+        private SqliteCommand InitMarkDispatchedCommand(SqliteConnection connection, IEnumerable<string> messageIds, DateTime? dispatchedAt)
         {
             var command = connection.CreateCommand();
             var inClause = GenerateInClauseAndAddParameters(command, messageIds.ToList());
@@ -627,9 +627,9 @@ namespace Paramore.Brighter.Outbox.Sqlite
             return (MessageType)Enum.Parse(typeof(MessageType), dr.GetString(dr.GetOrdinal("MessageType")));
         }
 
-        private static Guid GetMessageId(IDataReader dr)
+        private static string GetMessageId(IDataReader dr)
         {
-            return Guid.Parse(dr.GetString(dr.GetOrdinal("MessageId")));
+            return dr.GetString(dr.GetOrdinal("MessageId"));
         }
 
         private string GetContentType(IDataReader dr)

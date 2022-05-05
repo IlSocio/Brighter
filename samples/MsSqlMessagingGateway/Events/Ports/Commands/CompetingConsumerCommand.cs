@@ -5,7 +5,7 @@ namespace Events.Ports.Commands
 {
     public class CompetingConsumerCommand : Command
     {
-        public CompetingConsumerCommand(int commandNumber) : base(Guid.NewGuid())
+        public CompetingConsumerCommand(int commandNumber) : base(Guid.NewGuid().ToString())
         {
             CommandNumber = commandNumber;
         }

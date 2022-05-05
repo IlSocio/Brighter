@@ -111,7 +111,7 @@ namespace Paramore.Brighter.Monitoring.Events
             int timeElapsedMs,
             Exception exception = null
             )
-            :base(Guid.NewGuid())
+            :base(Guid.NewGuid().ToString())
         {
             InstanceName = instanceName;
             EventType = eventType;

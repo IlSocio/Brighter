@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace Paramore.Brighter
 {
@@ -21,7 +21,7 @@ namespace Paramore.Brighter
         /// </summary>
         /// <param name="replyAddress"></param>
         public Request(ReplyAddress replyAddress)
-            : base(Guid.NewGuid())
+            : base(Guid.NewGuid().ToString())
         {
             ReplyAddress = replyAddress;
         }

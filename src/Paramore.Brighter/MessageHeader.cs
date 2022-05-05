@@ -24,8 +24,6 @@ THE SOFTWARE. */
 
 using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
-using Paramore.Brighter.Serialization;
 
 namespace Paramore.Brighter
 {
@@ -74,7 +72,7 @@ namespace Paramore.Brighter
         /// Gets the identifier.
         /// </summary>
         /// <value>The identifier.</value>
-        public Guid Id { get; set; }
+        public string Id { get; set; }
         /// <summary>
         /// Gets the topic.
         /// </summary>
@@ -131,7 +129,7 @@ namespace Paramore.Brighter
 
         /// Intended for serialization, prefer a parameterized constructor in application code as a better 'pit of success'
         /// </summary>
-        public MessageHeader() {}
+        public MessageHeader() { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MessageHeader"/> class.
@@ -144,11 +142,11 @@ namespace Paramore.Brighter
         /// <param name="contentType">The type of the payload of the message, defaults to tex/plain</param>
         /// <param name="partitionKey">How should we group messages that must be processed together i.e. consistent hashing</param>
         public MessageHeader(
-            Guid messageId, 
-            string topic, 
-            MessageType messageType, 
-            Guid? correlationId = null, 
-            string replyTo = "", 
+            string messageId,
+            string topic,
+            MessageType messageType,
+            Guid? correlationId = null,
+            string replyTo = "",
             string contentType = "text/plain",
             string partitionKey = "")
         {
@@ -158,7 +156,7 @@ namespace Paramore.Brighter
             TimeStamp = RoundToSeconds(DateTime.UtcNow);
             HandledCount = 0;
             DelayedMilliseconds = 0;
-            CorrelationId = correlationId ?? Guid.Empty ;
+            CorrelationId = correlationId ?? Guid.Empty;
             ReplyTo = replyTo;
             ContentType = contentType;
             PartitionKey = partitionKey;
@@ -177,46 +175,46 @@ namespace Paramore.Brighter
         /// <param name="contentType">The type of the payload of the message, defaults to tex/plain</param>
         /// <param name="partitionKey">How should we group messages that must be processed together i.e. consistent hashing</param>
         public MessageHeader(
-            Guid messageId, 
-            string topic, 
-            MessageType messageType, 
-            DateTime timeStamp, 
-            Guid? correlationId = null, 
+            string messageId,
+            string topic,
+            MessageType messageType,
+            DateTime timeStamp,
+            Guid? correlationId = null,
             string replyTo = null,
-            string contentType = "text/plain", 
+            string contentType = "text/plain",
             string partitionKey = "")
             : this(messageId, topic, messageType, correlationId, replyTo, contentType, partitionKey)
         {
             TimeStamp = RoundToSeconds(timeStamp);
         }
 
-          /// <summary>
-          /// Initializes a new instance of the <see cref="MessageHeader"/> class.
-          /// </summary>
-          /// <param name="messageId">The message identifier.</param>
-          /// <param name="topic">The topic.</param>
-          /// <param name="messageType">Type of the message.</param>
-          /// <param name="correlationId">Used in request-reply to allow the sender to match response to their request</param>
-          /// <param name="replyTo">Used for a request-reply message to indicate the private channel to reply to</param>
-          /// <param name="contentType">The type of the payload of the message, defaults to tex/plain</param>
-          /// <param name="partitionKey">How should we group messages that must be processed together i.e. consistent hashing</param>
-          public MessageHeader(
-            Guid messageId, 
-            string topic, 
-            MessageType messageType, 
-            DateTime timeStamp, 
-            int handledCount, 
-            int delayedMilliseconds, 
-            Guid? correlationId = null, 
-            string replyTo = null, 
-            string contentType = "text/plain",
-            string partitionKey = "")
-            : this(messageId, topic, messageType, timeStamp, correlationId, replyTo, contentType, partitionKey)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MessageHeader"/> class.
+        /// </summary>
+        /// <param name="messageId">The message identifier.</param>
+        /// <param name="topic">The topic.</param>
+        /// <param name="messageType">Type of the message.</param>
+        /// <param name="correlationId">Used in request-reply to allow the sender to match response to their request</param>
+        /// <param name="replyTo">Used for a request-reply message to indicate the private channel to reply to</param>
+        /// <param name="contentType">The type of the payload of the message, defaults to tex/plain</param>
+        /// <param name="partitionKey">How should we group messages that must be processed together i.e. consistent hashing</param>
+        public MessageHeader(
+          string messageId,
+          string topic,
+          MessageType messageType,
+          DateTime timeStamp,
+          int handledCount,
+          int delayedMilliseconds,
+          Guid? correlationId = null,
+          string replyTo = null,
+          string contentType = "text/plain",
+          string partitionKey = "")
+          : this(messageId, topic, messageType, timeStamp, correlationId, replyTo, contentType, partitionKey)
         {
             HandledCount = handledCount;
             DelayedMilliseconds = delayedMilliseconds;
         }
-        
+
         /// <summary>
         /// Create a copy of the header that allows manipulation of bag contents.
         /// </summary>
@@ -273,9 +271,12 @@ namespace Paramore.Brighter
         /// <returns><c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.</returns>
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (ReferenceEquals(null, obj))
+                return false;
+            if (ReferenceEquals(this, obj))
+                return true;
+            if (obj.GetType() != this.GetType())
+                return false;
             return Equals((MessageHeader)obj);
         }
 

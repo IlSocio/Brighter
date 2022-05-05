@@ -1,4 +1,4 @@
-#region Licence
+﻿#region Licence
 /* The MIT License (MIT)
 Copyright © 2014 Ian Cooper <ian_hammond_cooper@yahoo.co.uk>
 
@@ -37,7 +37,7 @@ namespace Paramore.Brighter
         /// <returns>Message.</returns>
         public static Message CreateQuitMessage()
         {
-            return new Message(new MessageHeader(Guid.Empty, string.Empty, MessageType.MT_QUIT), new MessageBody(string.Empty));
+            return new Message(new MessageHeader(string.Empty, string.Empty, MessageType.MT_QUIT), new MessageBody(string.Empty));
         }
     }
 }

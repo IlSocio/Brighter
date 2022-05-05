@@ -68,25 +68,30 @@ namespace GreetingsSender.Web.Controllers
         
         public async Task<IActionResult> SaveAndRollbackMessage()
         {
-            var transaction = await _context.Database.BeginTransactionAsync();
-            
-            // try
-            // {
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+
                 var greetingAsync = new GreetingAsyncEvent("Hello from the web - 1");
                 var greeting = new GreetingEvent("Hello from the web - 1");
-                
+
                 _context.Greetings.Add(greeting);
                 _context.GreetingsAsync.Add(greetingAsync);
-                
+
                 await _context.SaveChangesAsync();
-            
+
                 _commandProcessor.DepositPost(greeting);
                 await _commandProcessor.DepositPostAsync(greetingAsync);
-                //throw new Exception("Something went wrong");
+
+                transaction.Commit();
+            }
+
+            // try
+            // {
+            //throw new Exception("Something went wrong");
             // }
             // catch (Exception e)
             // {
-                await transaction.RollbackAsync();
+            // await transaction.RollbackAsync();
                 
             // }
             

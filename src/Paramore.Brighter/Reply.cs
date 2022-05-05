@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace Paramore.Brighter
 {
@@ -21,7 +21,7 @@ namespace Paramore.Brighter
         public ReplyAddress SendersAddress { get; private set; }
 
         public Reply(ReplyAddress sendersAddress)
-            : base(Guid.NewGuid())
+            : base(Guid.NewGuid().ToString())
         {
             SendersAddress = sendersAddress;
         }

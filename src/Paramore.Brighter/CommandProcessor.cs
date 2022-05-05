@@ -434,7 +434,7 @@ namespace Paramore.Brighter
             where T : class, IRequest
         {
             var messageId = await DepositPostAsync(request, null, continueOnCapturedContext, cancellationToken);
-            await ClearOutboxAsync(new Guid[] {messageId}, continueOnCapturedContext, cancellationToken);
+            await ClearOutboxAsync(new string[] {messageId}, continueOnCapturedContext, cancellationToken);
         }
 
         /// <summary>
@@ -447,12 +447,12 @@ namespace Paramore.Brighter
         /// <param name="request">The request to save to the outbox</param>
         /// <typeparam name="T">The type of the request</typeparam>
         /// <returns>The Id of the Message that has been deposited.</returns>
-        public Guid DepositPost<T>(T request) where T : class, IRequest
+        public string DepositPost<T>(T request) where T : class, IRequest
         {
             return DepositPost(request, _boxTransactionConnectionProvider);
         }
         
-        private Guid DepositPost<T>(T request, IAmABoxTransactionConnectionProvider connectionProvider) where T : class, IRequest
+        private string DepositPost<T>(T request, IAmABoxTransactionConnectionProvider connectionProvider) where T : class, IRequest
         {
             s_logger.LogInformation("Save request: {RequestType} {Id}", request.GetType(), request.Id);
 
@@ -482,13 +482,13 @@ namespace Paramore.Brighter
         /// <param name="cancellationToken">The Cancellation Token.</param>
         /// <typeparam name="T">The type of the request</typeparam>
         /// <returns></returns>
-        public async Task<Guid> DepositPostAsync<T>(T request, bool continueOnCapturedContext = false,
+        public async Task<string> DepositPostAsync<T>(T request, bool continueOnCapturedContext = false,
             CancellationToken cancellationToken = default(CancellationToken)) where T : class, IRequest
         {
             return await DepositPostAsync(request, _boxTransactionConnectionProvider, continueOnCapturedContext, cancellationToken);
         }
         
-        private async Task<Guid> DepositPostAsync<T>(T request, IAmABoxTransactionConnectionProvider connectionProvider,  bool continueOnCapturedContext = false,
+        private async Task<string> DepositPostAsync<T>(T request, IAmABoxTransactionConnectionProvider connectionProvider,  bool continueOnCapturedContext = false,
             CancellationToken cancellationToken = default(CancellationToken)) where T : class, IRequest
         {
             s_logger.LogInformation("Save request: {RequestType} {Id}", request.GetType(), request.Id);
@@ -513,7 +513,7 @@ namespace Paramore.Brighter
         /// Intended for use with the Outbox pattern: http://gistlabs.com/2014/05/the-outbox/ <see cref="DepositPostBox"/>
         /// </summary>
         /// <param name="posts">The posts to flush</param>
-        public void ClearOutbox(params Guid[] posts)
+        public void ClearOutbox(params string[] posts)
         {
             _bus.ClearOutbox(posts); 
         }
@@ -536,7 +536,7 @@ namespace Paramore.Brighter
         /// </summary>
         /// <param name="posts">The posts to flush</param>
         public async Task ClearOutboxAsync(
-            IEnumerable<Guid> posts, 
+            IEnumerable<string> posts, 
             bool continueOnCapturedContext = false,
             CancellationToken cancellationToken = default(CancellationToken))
         {

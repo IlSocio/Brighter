@@ -1,4 +1,4 @@
-#region Licence
+﻿#region Licence
 /* The MIT License (MIT)
 Copyright © 2015 Ian Cooper <ian_hammond_cooper@yahoo.co.uk>
 
@@ -29,9 +29,9 @@ namespace Events.Ports.Commands
 {
     public class GreetingEvent : Event
     {
-        public GreetingEvent() : base(Guid.NewGuid()) { }
+        public GreetingEvent() : base(Guid.NewGuid().ToString()) { }
 
-        public GreetingEvent(string greeting) : base(Guid.NewGuid())
+        public GreetingEvent(string greeting) : base(Guid.NewGuid().ToString())
         {
             Greeting = greeting;
         }

@@ -100,7 +100,7 @@ namespace Paramore.Brighter
         /// <param name="request">The request to save to the outbox</param>
         /// <typeparam name="T">The type of the request</typeparam>
         /// <returns></returns>
-        Guid DepositPost<T>(T request) where T : class, IRequest;
+        string DepositPost<T>(T request) where T : class, IRequest;
 
         /// <summary>
         /// Adds a message into the outbox, and returns the id of the saved message.
@@ -112,14 +112,14 @@ namespace Paramore.Brighter
         /// <param name="request">The request to save to the outbox</param>
         /// <typeparam name="T">The type of the request</typeparam>
         /// <returns></returns>
-        Task<Guid> DepositPostAsync<T>(T request, bool continueOnCapturedContext = false, CancellationToken cancellationToken = default(CancellationToken)) where T : class, IRequest;
+        Task<string> DepositPostAsync<T>(T request, bool continueOnCapturedContext = false, CancellationToken cancellationToken = default(CancellationToken)) where T : class, IRequest;
 
         /// <summary>
         /// Flushes the message box message given by <param name="posts"> to the broker.
         /// Intended for use with the Outbox pattern: http://gistlabs.com/2014/05/the-outbox/ <see cref="DepositPostBox"/>
         /// <param name="posts">The posts to flush</param>
         /// </summary>
-        void ClearOutbox(params Guid[] posts);
+        void ClearOutbox(params string[] posts);
 
         /// <summary>
         /// Flushes any outstanding message box message to the broker.
@@ -134,7 +134,7 @@ namespace Paramore.Brighter
         /// Intended for use with the Outbox pattern: http://gistlabs.com/2014/05/the-outbox/ <see cref="DepositPostBoxAsync"/>
         /// </summary>
         /// <param name="posts">The posts to flush</param>
-        Task ClearOutboxAsync(IEnumerable<Guid> posts, bool continueOnCapturedContext = false, CancellationToken cancellationToken = default(CancellationToken));
+        Task ClearOutboxAsync(IEnumerable<string> posts, bool continueOnCapturedContext = false, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Flushes any outstanding message box message to the broker.

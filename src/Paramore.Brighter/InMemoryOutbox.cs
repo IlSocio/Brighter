@@ -67,7 +67,7 @@ namespace Paramore.Brighter
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public static string ConvertKey(Guid id)
+        public static string ConvertKey(string id)
         {
             return $"{id}";
         }
@@ -166,7 +166,7 @@ namespace Paramore.Brighter
         /// <param name="messageId">The id of the message to get</param>
         /// <param name="outBoxTimeout">How long to wait for the message before timing out</param>
         /// <returns>The message</returns>
-        public Message Get(Guid messageId, int outBoxTimeout = -1)
+        public Message Get(string messageId, int outBoxTimeout = -1)
         {
             ClearExpiredMessages();
             
@@ -202,7 +202,7 @@ namespace Paramore.Brighter
         /// <param name="outBoxTimeout"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<Message> GetAsync(Guid messageId, int outBoxTimeout = -1, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<Message> GetAsync(string messageId, int outBoxTimeout = -1, CancellationToken cancellationToken = default(CancellationToken))
         {
             var tcs = new TaskCompletionSource<Message>(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -218,7 +218,7 @@ namespace Paramore.Brighter
             return tcs.Task;
         }
 
-       public Task<IEnumerable<Message>> GetAsync(IEnumerable<Guid> messageIds, int outBoxTimeout = -1,
+       public Task<IEnumerable<Message>> GetAsync(IEnumerable<string> messageIds, int outBoxTimeout = -1,
            CancellationToken cancellationToken = default(CancellationToken))
        {
            var tcs = new TaskCompletionSource<IEnumerable<Message>>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -235,7 +235,7 @@ namespace Paramore.Brighter
         /// Mark the message as dispatched
         /// </summary>
         /// <param name="id">The message to mark as dispatched</param>
-        public Task MarkDispatchedAsync(Guid id, DateTime? dispatchedAt = null, Dictionary<string, object> args = null, CancellationToken cancellationToken = default(CancellationToken))
+        public Task MarkDispatchedAsync(string id, DateTime? dispatchedAt = null, Dictionary<string, object> args = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var tcs = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
             
@@ -246,7 +246,7 @@ namespace Paramore.Brighter
             return tcs.Task;
         }
 
-       public Task MarkDispatchedAsync(IEnumerable<Guid> ids, DateTime? dispatchedAt = null, Dictionary<string, object> args = null,
+       public Task MarkDispatchedAsync(IEnumerable<string> ids, DateTime? dispatchedAt = null, Dictionary<string, object> args = null,
            CancellationToken cancellationToken = default(CancellationToken))
        {
            throw new NotImplementedException();
@@ -256,7 +256,7 @@ namespace Paramore.Brighter
         /// Mark the message as dispatched
         /// </summary>
         /// <param name="id">The message to mark as dispatched</param>
-         public void MarkDispatched(Guid id, DateTime? dispatchedAt = null, Dictionary<string, object> args = null)
+         public void MarkDispatched(string id, DateTime? dispatchedAt = null, Dictionary<string, object> args = null)
         {
             ClearExpiredMessages();
             

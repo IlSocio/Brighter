@@ -182,6 +182,7 @@ internal class RmqMessagePublisher
         {
             var basicProperties = _channel.CreateBasicProperties();
 
+            Guid.new
             basicProperties.DeliveryMode = (byte) (persistMessage ? 2 : 1); // delivery mode set to 2 if message is persistent or 1 if non-persistent
             basicProperties.ContentType = contentType;
             basicProperties.Type = type;

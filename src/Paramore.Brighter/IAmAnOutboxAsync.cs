@@ -64,7 +64,7 @@ namespace Paramore.Brighter
         /// <param name="outBoxTimeout">The time allowed for the read in milliseconds; on  a -2 default</param>
         /// <param name="cancellationToken">Allows the sender to cancel the request pipeline. Optional</param>
         /// <returns><see cref="Task{Message}"/>.</returns>
-        Task<Message> GetAsync(Guid messageId, int outBoxTimeout = -1, CancellationToken cancellationToken = default(CancellationToken));
+        Task<Message> GetAsync(string messageId, int outBoxTimeout = -1, CancellationToken cancellationToken = default(CancellationToken));
         
         /// <summary>
         ///  Returns all messages in the store
@@ -87,7 +87,7 @@ namespace Paramore.Brighter
         /// <param name="outBoxTimeout">The time allowed for the read in milliseconds; on  a -2 default</param>
         /// <param name="cancellationToken">Allows the sender to cancel the request pipeline. Optional</param>
         /// <returns><see cref="Task{Message}"/>.</returns>
-        Task<IEnumerable<Message>> GetAsync(IEnumerable<Guid> messageIds, int outBoxTimeout = -1, CancellationToken cancellationToken = default(CancellationToken));
+        Task<IEnumerable<Message>> GetAsync(IEnumerable<string> messageIds, int outBoxTimeout = -1, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Update a message to show it is dispatched
@@ -95,7 +95,7 @@ namespace Paramore.Brighter
         /// <param name="id">The id of the message to update</param>
         /// <param name="dispatchedAt">When was the message dispatched, defaults to UTC now</param>
         /// <param name="cancellationToken">Allows the sender to cancel the request pipeline. Optional</param>
-        Task MarkDispatchedAsync(Guid id, DateTime? dispatchedAt = null, Dictionary<string, object> args = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task MarkDispatchedAsync(string id, DateTime? dispatchedAt = null, Dictionary<string, object> args = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Update messages to show it is dispatched
@@ -103,7 +103,7 @@ namespace Paramore.Brighter
         /// <param name="ids">The ids of the messages to update</param>
         /// <param name="dispatchedAt">When was the message dispatched, defaults to UTC now</param>
         /// <param name="cancellationToken">Allows the sender to cancel the request pipeline. Optional</param>
-        Task MarkDispatchedAsync(IEnumerable<Guid> ids, DateTime? dispatchedAt = null, Dictionary<string, object> args = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task MarkDispatchedAsync(IEnumerable<string> ids, DateTime? dispatchedAt = null, Dictionary<string, object> args = null, CancellationToken cancellationToken = default(CancellationToken));
         
         /// <summary>
         /// Messages still outstanding in the Outbox because their timestamp

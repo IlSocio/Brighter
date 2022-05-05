@@ -1,4 +1,4 @@
-#region Licence
+﻿#region Licence
 /* The MIT License (MIT)
 Copyright © 2014 Ian Cooper <ian_hammond_cooper@yahoo.co.uk>
 
@@ -50,7 +50,7 @@ namespace Paramore.Brighter
         /// <param name="messageId">The message identifier.</param>
         /// <param name="outBoxTimeout">The time allowed for the read in milliseconds; on  a -2 default</param>
         /// <returns>Task&lt;Message&gt;.</returns>
-        Message Get(Guid messageId, int outBoxTimeout = -1);
+        Message Get(string messageId, int outBoxTimeout = -1);
 
         /// <summary>
         /// Update a message to show it is dispatched
@@ -58,7 +58,7 @@ namespace Paramore.Brighter
         /// <param name="id">The id of the message to update</param>
         /// <param name="dispatchedAt">When was the message dispatched, defaults to UTC now</param>
         /// <param name="args">Dictionary to allow platform specific parameters to be passed to the interface</param>
-        void MarkDispatched(Guid id, DateTime? dispatchedAt = null, Dictionary<string, object> args = null);
+        void MarkDispatched(string id, DateTime? dispatchedAt = null, Dictionary<string, object> args = null);
         
         /// <summary>
         /// Retrieves messages that have been sent within the window
