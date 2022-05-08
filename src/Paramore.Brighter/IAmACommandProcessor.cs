@@ -107,19 +107,6 @@ namespace Paramore.Brighter
         /// Intended for use with the Outbox pattern: http://gistlabs.com/2014/05/the-outbox/ normally you include the
         /// call to DepositPostBox within the scope of the transaction to write corresponding entity state to your
         /// database, that you want to signal via the request to downstream consumers
-        /// Pass deposited Guid to <see cref="CommandProcessor.ClearOutbox"/> 
-        /// </summary>
-        /// <param name="request">The request to save to the outbox</param>
-        /// <typeparam name="transactionProvider">Base interface for the TransactionProvider</typeparam>
-        /// <typeparam name="T">The type of the request</typeparam>
-        /// <returns></returns>
-        //Guid DepositPost<T>(T request, IAmATransactionConnectionProvider transactionProvider) where T : class, IRequest;
-
-        /// <summary>
-        /// Adds a message into the outbox, and returns the id of the saved message.
-        /// Intended for use with the Outbox pattern: http://gistlabs.com/2014/05/the-outbox/ normally you include the
-        /// call to DepositPostBox within the scope of the transaction to write corresponding entity state to your
-        /// database, that you want to signal via the request to downstream consumers
         /// Pass deposited Guid to <see cref="CommandProcessor.ClearOutboxAsync"/> 
         /// </summary>
         /// <param name="request">The request to save to the outbox</param>
