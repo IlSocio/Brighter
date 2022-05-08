@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using Npgsql;
 
 namespace Paramore.Brighter.PostgreSql
 {
-    public class PostgreSqlNpgsqlConnectionProvider : IPostgreSqlConnectionProvider
+    public class PostgreSqlNpgsqlConnectionProvider : IAmATransactionConnectionProvider
     {
         private readonly string _connectionString;
 
@@ -17,19 +18,17 @@ namespace Paramore.Brighter.PostgreSql
             _connectionString = configuration.ConnectionString;
         }
 
-        public NpgsqlConnection GetConnection()
+        public IDbConnection GetConnection()
         {
             return new NpgsqlConnection(_connectionString);
         }
 
-        public async Task<NpgsqlConnection> GetConnectionAsync(CancellationToken cancellationToken = default)
+        public Task<IDbConnection> GetConnectionAsync(CancellationToken cancellationToken = default)
         {
-            var tcs = new TaskCompletionSource<NpgsqlConnection>(TaskCreationOptions.RunContinuationsAsynchronously);
-            tcs.SetResult(GetConnection());
-            return await tcs.Task;
+            return Task.FromResult(GetConnection());
         }
 
-        public NpgsqlTransaction GetTransaction()
+        public IDbTransaction GetTransaction()
         {
             //This connection factory does not support transactions
             return null;

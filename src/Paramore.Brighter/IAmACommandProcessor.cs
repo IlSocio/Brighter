@@ -110,10 +110,10 @@ namespace Paramore.Brighter
         /// Pass deposited Guid to <see cref="CommandProcessor.ClearOutbox"/> 
         /// </summary>
         /// <param name="request">The request to save to the outbox</param>
-        /// <typeparam name="T">The type of the request</typeparam>
+        /// <typeparam name="transactionProvider">Base interface for the TransactionProvider</typeparam>
         /// <typeparam name="T">The type of the request</typeparam>
         /// <returns></returns>
-        Guid DepositPost<T>(T request, IAmABoxTransactionConnectionProvider transactionProvider) where T : class, IRequest;
+        //Guid DepositPost<T>(T request, IAmATransactionConnectionProvider transactionProvider) where T : class, IRequest;
 
         /// <summary>
         /// Adds a message into the outbox, and returns the id of the saved message.

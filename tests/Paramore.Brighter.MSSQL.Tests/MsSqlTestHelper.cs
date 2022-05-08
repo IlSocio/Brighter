@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Paramore.Brighter.Inbox.MsSql;
 using Paramore.Brighter.MsSql;
@@ -11,8 +10,8 @@ namespace Paramore.Brighter.MSSQL.Tests
     {
         private string _tableName;
         private SqlSettings _sqlSettings;
-        private IMsSqlConnectionProvider _connectionProvider;
-        private IMsSqlConnectionProvider _masterConnectionProvider;
+        private IAmATransactionConnectionProvider _connectionProvider;
+        private IAmATransactionConnectionProvider _masterConnectionProvider;
 
         private const string _queueDDL = @"CREATE TABLE [dbo].[{0}](
                 [Id][bigint] IDENTITY(1, 1) NOT NULL,
@@ -34,13 +33,13 @@ namespace Paramore.Brighter.MSSQL.Tests
             configuration.GetSection("Sql").Bind(_sqlSettings);
 
             _tableName = $"test_{Guid.NewGuid()}";
-            
+
             _connectionProvider = new MsSqlSqlAuthConnectionProvider(new MsSqlConfiguration(_sqlSettings.TestsBrighterConnectionString));
             _masterConnectionProvider = new MsSqlSqlAuthConnectionProvider(new MsSqlConfiguration(_sqlSettings.TestsMasterConnectionString));
         }
 
-       public void CreateDatabase()
-       {
+        public void CreateDatabase()
+        {
             using (var connection = _masterConnectionProvider.GetConnection())
             {
                 connection.Open();
@@ -79,7 +78,7 @@ namespace Paramore.Brighter.MSSQL.Tests
         public MsSqlConfiguration OutboxConfiguration => new MsSqlConfiguration(_sqlSettings.TestsBrighterConnectionString, outBoxTableName: _tableName);
 
         public MsSqlConfiguration QueueConfiguration => new MsSqlConfiguration(_sqlSettings.TestsBrighterConnectionString, queueStoreTable: _tableName);
-        
+
         private void CreateQueueTable()
         {
             _tableName = $"queue_{_tableName}";

@@ -51,7 +51,7 @@ namespace Paramore.Brighter
         private readonly IAmARequestContextFactory _requestContextFactory;
         private readonly IPolicyRegistry<string> _policyRegistry;
         private readonly InboxConfiguration _inboxConfiguration;
-        private readonly IAmABoxTransactionConnectionProvider _boxTransactionConnectionProvider;
+        private readonly IAmATransactionConnectionProvider _boxTransactionConnectionProvider;
         private readonly IAmAFeatureSwitchRegistry _featureSwitchRegistry;
         private readonly IEnumerable<Subscription> _replySubscriptions;
 
@@ -60,7 +60,7 @@ namespace Paramore.Brighter
         // the following are not readonly to allow setting them to null on dispose
         private readonly IAmAChannelFactory _responseChannelFactory;
 
-        
+
         /// <summary>
         /// Use this as an identifier for your <see cref="Policy"/> that determines for how long to break the circuit when communication with the Work Queue fails.
         /// Register that policy with your <see cref="IPolicyRegistry{TKey}"/> such as <see cref="PolicyRegistry"/>
@@ -88,7 +88,7 @@ namespace Paramore.Brighter
         /// You can use this an identifier for you own policies, if your generic policy is the same as your Work Queue policy.
         /// </summary>
         public const string RETRYPOLICYASYNC = "Paramore.Brighter.CommandProcessor.RetryPolicy.Async";
-        
+
         //We want to use double lock to let us pass parameters to the constructor from the first instance
         private static ExternalBusServices _bus = null;
         private static readonly object padlock = new object();
@@ -145,7 +145,7 @@ namespace Paramore.Brighter
             int outboxTimeout = 300,
             IAmAFeatureSwitchRegistry featureSwitchRegistry = null,
             InboxConfiguration inboxConfiguration = null,
-            IAmABoxTransactionConnectionProvider boxTransactionConnectionProvider = null)
+            IAmATransactionConnectionProvider boxTransactionConnectionProvider = null)
         {
             _requestContextFactory = requestContextFactory;
             _policyRegistry = policyRegistry;
@@ -153,7 +153,7 @@ namespace Paramore.Brighter
             _featureSwitchRegistry = featureSwitchRegistry;
             _inboxConfiguration = inboxConfiguration;
             _boxTransactionConnectionProvider = boxTransactionConnectionProvider;
-            
+
             InitExtServiceBus(policyRegistry, outBox, outboxTimeout, producerRegistry);
 
             ConfigureCallbacks(producerRegistry);
@@ -189,7 +189,7 @@ namespace Paramore.Brighter
             IAmAFeatureSwitchRegistry featureSwitchRegistry = null,
             IAmAChannelFactory responseChannelFactory = null,
             InboxConfiguration inboxConfiguration = null,
-            IAmABoxTransactionConnectionProvider boxTransactionConnectionProvider = null)
+            IAmATransactionConnectionProvider boxTransactionConnectionProvider = null)
             : this(subscriberRegistry, handlerFactory, requestContextFactory, policyRegistry)
         {
             _mapperRegistry = mapperRegistry;
@@ -200,7 +200,7 @@ namespace Paramore.Brighter
             _replySubscriptions = replySubscriptions;
 
             InitExtServiceBus(policyRegistry, outBox, outboxTimeout, producerRegistry);
-              
+
             ConfigureCallbacks(producerRegistry);
         }
 
@@ -230,7 +230,7 @@ namespace Paramore.Brighter
             int outboxTimeout = 300,
             IAmAFeatureSwitchRegistry featureSwitchRegistry = null,
             InboxConfiguration inboxConfiguration = null,
-            IAmABoxTransactionConnectionProvider boxTransactionConnectionProvider = null)
+            IAmATransactionConnectionProvider boxTransactionConnectionProvider = null)
             : this(subscriberRegistry, handlerFactory, requestContextFactory, policyRegistry, featureSwitchRegistry)
         {
             _mapperRegistry = mapperRegistry;
@@ -242,7 +242,7 @@ namespace Paramore.Brighter
             ConfigureCallbacks(producerRegistry);
         }
 
-       /// <summary>
+        /// <summary>
         /// Sends the specified command. We expect only one handler. The command is handled synchronously.
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -434,7 +434,7 @@ namespace Paramore.Brighter
             where T : class, IRequest
         {
             var messageId = await DepositPostAsync(request, null, continueOnCapturedContext, cancellationToken);
-            await ClearOutboxAsync(new Guid[] {messageId}, continueOnCapturedContext, cancellationToken);
+            await ClearOutboxAsync(new Guid[] { messageId }, continueOnCapturedContext, cancellationToken);
         }
 
         /// <summary>
@@ -451,8 +451,8 @@ namespace Paramore.Brighter
         {
             return DepositPost(request, _boxTransactionConnectionProvider);
         }
-        
-        public Guid DepositPost<T>(T request, IAmABoxTransactionConnectionProvider transactionProvider) where T : class, IRequest
+
+        private Guid DepositPost<T>(T request, IAmATransactionConnectionProvider transactionProvider) where T : class, IRequest
         {
             s_logger.LogInformation("Save request: {RequestType} {Id}", request.GetType(), request.Id);
 
@@ -487,8 +487,8 @@ namespace Paramore.Brighter
         {
             return await DepositPostAsync(request, _boxTransactionConnectionProvider, continueOnCapturedContext, cancellationToken);
         }
-        
-        private async Task<Guid> DepositPostAsync<T>(T request, IAmABoxTransactionConnectionProvider connectionProvider,  bool continueOnCapturedContext = false,
+
+        private async Task<Guid> DepositPostAsync<T>(T request, IAmATransactionConnectionProvider connectionProvider, bool continueOnCapturedContext = false,
             CancellationToken cancellationToken = default(CancellationToken)) where T : class, IRequest
         {
             s_logger.LogInformation("Save request: {RequestType} {Id}", request.GetType(), request.Id);
@@ -515,9 +515,9 @@ namespace Paramore.Brighter
         /// <param name="posts">The posts to flush</param>
         public void ClearOutbox(params Guid[] posts)
         {
-            _bus.ClearOutbox(posts); 
+            _bus.ClearOutbox(posts);
         }
-        
+
         /// <summary>
         /// Flushes any outstanding message box message to the broker.
         /// This will be run on a background task.
@@ -525,9 +525,9 @@ namespace Paramore.Brighter
         /// </summary>
         /// <param name="amountToClear">The maximum number to clear.</param>
         /// <param name="minimumAge">The minimum age to clear in milliseconds.</param>
-        public void ClearOutbox( int amountToClear = 100, int minimumAge = 5000)
+        public void ClearOutbox(int amountToClear = 100, int minimumAge = 5000)
         {
-            _bus.ClearOutbox(amountToClear, minimumAge, false, false); 
+            _bus.ClearOutbox(amountToClear, minimumAge, false, false);
         }
 
         /// <summary>
@@ -536,13 +536,13 @@ namespace Paramore.Brighter
         /// </summary>
         /// <param name="posts">The posts to flush</param>
         public async Task ClearOutboxAsync(
-            IEnumerable<Guid> posts, 
+            IEnumerable<Guid> posts,
             bool continueOnCapturedContext = false,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            await _bus.ClearOutboxAsync(posts, continueOnCapturedContext, cancellationToken); 
+            await _bus.ClearOutboxAsync(posts, continueOnCapturedContext, cancellationToken);
         }
-        
+
         /// <summary>
         /// Flushes any outstanding message box message to the broker.
         /// This will be run on a background task.
@@ -556,7 +556,7 @@ namespace Paramore.Brighter
             int minimumAge = 5000,
             bool useBulk = false)
         {
-            _bus.ClearOutbox(amountToClear, minimumAge, true, useBulk); 
+            _bus.ClearOutbox(amountToClear, minimumAge, true, useBulk);
         }
 
         /// <summary>
@@ -587,7 +587,7 @@ namespace Paramore.Brighter
             if (inMessageMapper == null)
                 throw new ArgumentOutOfRangeException(
                     $"No message mapper registered for messages of type: {typeof(T)}");
-            
+
             var subscription = _replySubscriptions.FirstOrDefault(s => s.DataType == typeof(TResponse));
 
             if (subscription is null)
@@ -670,14 +670,15 @@ namespace Paramore.Brighter
             if (handlerCount == 0)
                 throw new ArgumentException($"No command handler was found for the typeof command {typeof(T)} - a command should have exactly one handler.");
         }
-        
-        
+
+
         private void ConfigureCallbacks(IAmAProducerRegistry producerRegistry)
         {
             //Only register one, to avoid two callbacks where we support both interfaces on a producer
             foreach (var producer in producerRegistry.Producers)
             {
-                if (!_bus.ConfigurePublisherCallbackMaybe(producer)) _bus.ConfigureAsyncPublisherCallbackMaybe(producer);
+                if (!_bus.ConfigurePublisherCallbackMaybe(producer))
+                    _bus.ConfigureAsyncPublisherCallbackMaybe(producer);
             }
         }
 
@@ -695,11 +696,14 @@ namespace Paramore.Brighter
                 {
                     if (_bus == null)
                     {
-                        if (producerRegistry == null) throw new ConfigurationException("A producer registry is required to create an external bus");
-                        
+                        if (producerRegistry == null)
+                            throw new ConfigurationException("A producer registry is required to create an external bus");
+
                         _bus = new ExternalBusServices();
-                        if(outbox is IAmAnOutboxSync<Message> syncOutbox)_bus.OutBox = syncOutbox;
-                        if(outbox is IAmAnOutboxAsync<Message> asyncOutbox)_bus.AsyncOutbox = asyncOutbox;
+                        if (outbox is IAmAnOutboxSync<Message> syncOutbox)
+                            _bus.OutBox = syncOutbox;
+                        if (outbox is IAmAnOutboxAsync<Message> asyncOutbox)
+                            _bus.AsyncOutbox = asyncOutbox;
 
                         _bus.OutboxTimeout = outboxTimeout;
                         _bus.PolicyRegistry = policyRegistry;

@@ -58,7 +58,7 @@ namespace Paramore.Brighter
             
         }
 
-        internal async Task AddToOutboxAsync<T>(T request, bool continueOnCapturedContext, CancellationToken cancellationToken, Message message, IAmABoxTransactionConnectionProvider overridingTransactionConnectionProvider = null)
+        internal async Task AddToOutboxAsync<T>(T request, bool continueOnCapturedContext, CancellationToken cancellationToken, Message message, IAmATransactionConnectionProvider overridingTransactionConnectionProvider = null)
             where T : class, IRequest
         {
             CheckOutboxOutstandingLimit();
@@ -71,7 +71,7 @@ namespace Paramore.Brighter
         }            
             
             
-        internal void AddToOutbox<T>(T request, Message message, IAmABoxTransactionConnectionProvider overridingTransactionConnectionProvider = null) where T : class, IRequest
+        internal void AddToOutbox<T>(T request, Message message, IAmATransactionConnectionProvider overridingTransactionConnectionProvider = null) where T : class, IRequest
         {
             CheckOutboxOutstandingLimit();
                 

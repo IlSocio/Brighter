@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using Microsoft.Extensions.DependencyInjection;
 using Paramore.Brighter.Extensions.DependencyInjection;
 using Paramore.Brighter.MsSql;
@@ -27,36 +26,17 @@ namespace Paramore.Brighter.Outbox.MsSql
             this IBrighterBuilder brighterBuilder, MsSqlConfiguration configuration, Type connectionProvider, ServiceLifetime serviceLifetime = ServiceLifetime.Singleton)
         {
             brighterBuilder.Services.AddSingleton<MsSqlConfiguration>(configuration);
-            brighterBuilder.Services.Add(new ServiceDescriptor(typeof(IMsSqlConnectionProvider), connectionProvider, serviceLifetime));
-            
+            brighterBuilder.Services.Add(new ServiceDescriptor(typeof(IAmATransactionConnectionProvider), connectionProvider, serviceLifetime));
+
             brighterBuilder.Services.Add(new ServiceDescriptor(typeof(IAmAnOutboxSync<Message>), BuildMsSqlOutbox, serviceLifetime));
             brighterBuilder.Services.Add(new ServiceDescriptor(typeof(IAmAnOutboxAsync<Message>), BuildMsSqlOutbox, serviceLifetime));
- 
-            return brighterBuilder;
-        }
-
-         /// <summary>
-         /// Use this transaction provider to ensure that the Outbox and the Entity Store are correct
-         /// </summary>
-         /// <param name="brighterBuilder">Allows extension method</param>
-         /// <param name="connectionProvider">What is the tyoe of the connection provider</param>
-         /// <param name="serviceLifetime">What is the lifetime of registered interfaces</param>
-         /// <returns>Allows fluent syntax</returns>
-         /// This is paired with Use Outbox (above) when required
-         /// Registers the following
-         /// -- IAmABoxTransactionConnectionProvider: the provider of a connection for any existing transaction
-         public static IBrighterBuilder UseMsSqlTransactionConnectionProvider(
-            this IBrighterBuilder brighterBuilder, Type connectionProvider,
-            ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
-        {
-            brighterBuilder.Services.Add(new ServiceDescriptor(typeof(IAmABoxTransactionConnectionProvider), connectionProvider, serviceLifetime));
 
             return brighterBuilder;
         }
 
         private static MsSqlOutbox BuildMsSqlOutbox(IServiceProvider provider)
         {
-            var connectionProvider = provider.GetService<IMsSqlConnectionProvider>();
+            var connectionProvider = provider.GetService<IAmATransactionConnectionProvider>();
             var config = provider.GetService<MsSqlConfiguration>();
 
             return new MsSqlOutbox(config, connectionProvider);

@@ -38,7 +38,7 @@ namespace Paramore.Brighter.Outbox.PostgreSql
     public class PostgreSqlOutboxSync : IAmAnOutboxSync<Message>
     {
         private readonly PostgreSqlOutboxConfiguration _configuration;
-        private readonly IPostgreSqlConnectionProvider _connectionProvider;
+        private readonly IAmATransactionConnectionProvider _connectionProvider;
         private static readonly ILogger s_logger = ApplicationLogging.CreateLogger<PostgreSqlOutboxSync>();
 
         public bool ContinueOnCapturedContext
@@ -51,7 +51,7 @@ namespace Paramore.Brighter.Outbox.PostgreSql
         /// Initialises a new instance of <see cref="PostgreSqlOutboxSync"> class.
         /// </summary>
         /// <param name="postgresSqlOutboxConfiguration">PostgreSql Outbox Configuration.</param>
-        public PostgreSqlOutboxSync(PostgreSqlOutboxConfiguration configuration, IPostgreSqlConnectionProvider connectionProvider = null)
+        public PostgreSqlOutboxSync(PostgreSqlOutboxConfiguration configuration, IAmATransactionConnectionProvider connectionProvider = null)
         {
             _configuration = configuration;
             _connectionProvider = connectionProvider;
@@ -62,7 +62,7 @@ namespace Paramore.Brighter.Outbox.PostgreSql
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="outBoxTimeout">The time allowed for the write in milliseconds; on a -1 default</param>
-        public void Add(Message message, int outBoxTimeout = -1, IAmABoxTransactionConnectionProvider transactionConnectionProvider = null)
+        public void Add(Message message, int outBoxTimeout = -1, IAmATransactionConnectionProvider transactionConnectionProvider = null)
         {
             var connectionProvider = GetConnectionProvider(transactionConnectionProvider);
             var parameters = InitAddDbParameters(message);
@@ -262,24 +262,21 @@ namespace Paramore.Brighter.Outbox.PostgreSql
             }
         }
 
-        private IPostgreSqlConnectionProvider GetConnectionProvider(IAmABoxTransactionConnectionProvider transactionConnectionProvider = null)
+        private IAmATransactionConnectionProvider GetConnectionProvider(IAmATransactionConnectionProvider transactionConnectionProvider = null)
         {
             var connectionProvider = _connectionProvider ?? new PostgreSqlNpgsqlConnectionProvider(_configuration);
 
             if (transactionConnectionProvider != null)
             {
-                if (transactionConnectionProvider is IPostgreSqlTransactionConnectionProvider provider)
-                    connectionProvider = provider;
-                else
-                    throw new Exception($"{nameof(transactionConnectionProvider)} does not implement interface {nameof(IPostgreSqlTransactionConnectionProvider)}.");
+                connectionProvider = transactionConnectionProvider;
             }
 
             return connectionProvider;
         }
 
-        private NpgsqlConnection GetOpenConnection(IPostgreSqlConnectionProvider connectionProvider)
+        private NpgsqlConnection GetOpenConnection(IAmATransactionConnectionProvider connectionProvider)
         {
-            NpgsqlConnection connection = connectionProvider.GetConnection();
+            NpgsqlConnection connection = connectionProvider.GetConnection() as NpgsqlConnection;
 
             if (connection.State != ConnectionState.Open)
                 connection.Open();

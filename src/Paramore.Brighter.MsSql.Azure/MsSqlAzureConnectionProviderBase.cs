@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Core;
@@ -7,15 +8,15 @@ using Microsoft.Data.SqlClient;
 
 namespace Paramore.Brighter.MsSql.Azure
 {
-    public abstract class MsSqlAzureConnectionProviderBase : IMsSqlConnectionProvider
+    public abstract class MsSqlAzureConnectionProviderBase : IAmATransactionConnectionProvider
     {
         private readonly bool _cacheTokens;
         private const string _azureScope = "https://database.windows.net/.default";
         private const int _cacheLifeTime = 5;
-        
+
         private readonly string _connectionString;
         protected readonly string[] _authenticationTokenScopes;
-        
+
         private static AccessToken _token;
         private static SemaphoreSlim _semaphoreToken = new SemaphoreSlim(1, 1);
 
@@ -28,10 +29,10 @@ namespace Paramore.Brighter.MsSql.Azure
         {
             _cacheTokens = cacheTokens;
             _connectionString = configuration.ConnectionString;
-            _authenticationTokenScopes = new string[1] {_azureScope};
+            _authenticationTokenScopes = new string[1] { _azureScope };
         }
 
-        public SqlConnection GetConnection()
+        public IDbConnection GetConnection()
         {
             var sqlConnection = new SqlConnection(_connectionString);
             sqlConnection.AccessToken = GetAccessToken();
@@ -39,7 +40,7 @@ namespace Paramore.Brighter.MsSql.Azure
             return sqlConnection;
         }
 
-        public async Task<SqlConnection> GetConnectionAsync(
+        public async Task<IDbConnection> GetConnectionAsync(
             CancellationToken cancellationToken = default(CancellationToken))
         {
             var sqlConnection = new SqlConnection(_connectionString);
@@ -50,18 +51,20 @@ namespace Paramore.Brighter.MsSql.Azure
 
         private string GetAccessToken()
         {
-            if (!_cacheTokens) return GetAccessTokenFromProvider().Token;
+            if (!_cacheTokens)
+                return GetAccessTokenFromProvider().Token;
             _semaphoreToken.Wait();
             try
             {
                 //If the Token has more than 5 minutes Validity
-                if (DateTime.UtcNow.AddMinutes(_cacheLifeTime) <= _token.ExpiresOn.UtcDateTime) return _token.Token;
-        
+                if (DateTime.UtcNow.AddMinutes(_cacheLifeTime) <= _token.ExpiresOn.UtcDateTime)
+                    return _token.Token;
+
                 var credential = new ManagedIdentityCredential();
                 var token = GetAccessTokenFromProvider();
 
                 _token = token;
-        
+
                 return token.Token;
             }
             finally
@@ -69,21 +72,23 @@ namespace Paramore.Brighter.MsSql.Azure
                 _semaphoreToken.Release();
             }
         }
-        
+
         private async Task<string> GetAccessTokenAsync(CancellationToken cancellationToken)
         {
-            if (!_cacheTokens) return (await GetAccessTokenFromProviderAsync(cancellationToken)).Token;
+            if (!_cacheTokens)
+                return (await GetAccessTokenFromProviderAsync(cancellationToken)).Token;
             await _semaphoreToken.WaitAsync(cancellationToken);
             try
             {
                 //If the Token has more than 5 minutes Validity
-                if (DateTime.UtcNow.AddMinutes(_cacheLifeTime) <= _token.ExpiresOn.UtcDateTime) return _token.Token;
-        
+                if (DateTime.UtcNow.AddMinutes(_cacheLifeTime) <= _token.ExpiresOn.UtcDateTime)
+                    return _token.Token;
+
                 var credential = new ManagedIdentityCredential();
                 var token = await GetAccessTokenFromProviderAsync(cancellationToken);
 
                 _token = token;
-        
+
                 return token.Token;
             }
             finally
@@ -91,12 +96,12 @@ namespace Paramore.Brighter.MsSql.Azure
                 _semaphoreToken.Release();
             }
         }
-        
+
         protected abstract AccessToken GetAccessTokenFromProvider();
-        
+
         protected abstract Task<AccessToken> GetAccessTokenFromProviderAsync(CancellationToken cancellationToken);
 
-        public SqlTransaction GetTransaction()
+        public IDbTransaction GetTransaction()
         {
             //This Connection Factory does not support Transactions 
             return null;

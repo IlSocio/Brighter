@@ -10,18 +10,18 @@ namespace Paramore.Brighter.MessagingGateway.MsSql
     {
         public int MaxOutStandingMessages { get; set; } = -1;
         public int MaxOutStandingCheckIntervalMilliSeconds { get; set; } = 0;
-        
+
         private static readonly ILogger s_logger = ApplicationLogging.CreateLogger<MsSqlMessageProducer>();
         private readonly MsSqlMessageQueue<Message> _sqlQ;
         private Publication _publication; // -- placeholder for future use
 
         public MsSqlMessageProducer(
             MsSqlConfiguration msSqlConfiguration,
-            IMsSqlConnectionProvider connectionProvider,
+            IAmATransactionConnectionProvider connectionProvider,
         Publication publication = null)
         {
             _sqlQ = new MsSqlMessageQueue<Message>(msSqlConfiguration, connectionProvider);
-            _publication = publication ?? new Publication() {MakeChannels = OnMissingChannel.Create};
+            _publication = publication ?? new Publication() { MakeChannels = OnMissingChannel.Create };
             MaxOutStandingMessages = _publication.MaxOutStandingMessages;
             MaxOutStandingCheckIntervalMilliSeconds = _publication.MaxOutStandingCheckIntervalMilliSeconds;
         }
@@ -41,13 +41,13 @@ namespace Paramore.Brighter.MessagingGateway.MsSql
 
             _sqlQ.Send(message, topic);
         }
-        
+
         public void SendWithDelay(Message message, int delayMilliseconds = 0)
         {
             //No delay support implemented
             Send(message);
         }
-   
+
 
         public async Task SendAsync(Message message)
         {

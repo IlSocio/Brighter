@@ -24,14 +24,14 @@ THE SOFTWARE. */
 #endregion
 
 using System;
-using Microsoft.Data.SqlClient;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using Paramore.Brighter.Inbox.Exceptions;
-using Paramore.Brighter.MsSql;
 using Paramore.Brighter.Logging;
+using Paramore.Brighter.MsSql;
 
 namespace Paramore.Brighter.Inbox.MsSql
 {
@@ -45,14 +45,14 @@ namespace Paramore.Brighter.Inbox.MsSql
         private const int MsSqlDuplicateKeyError_UniqueIndexViolation = 2601;
         private const int MsSqlDuplicateKeyError_UniqueConstraintViolation = 2627;
         private readonly MsSqlConfiguration _configuration;
-        private readonly IMsSqlConnectionProvider _connectionProvider;
+        private readonly IAmATransactionConnectionProvider _connectionProvider;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="MsSqlInbox" /> class.
         /// </summary>
         /// <param name="configuration">The configuration.</param>
         /// <param name="connectionProvider">The Connection Provider.</param>
-        public MsSqlInbox(MsSqlConfiguration configuration, IMsSqlConnectionProvider connectionProvider)
+        public MsSqlInbox(MsSqlConfiguration configuration, IAmATransactionConnectionProvider connectionProvider)
         {
             _configuration = configuration;
             ContinueOnCapturedContext = false;
@@ -80,7 +80,7 @@ namespace Paramore.Brighter.Inbox.MsSql
         {
             var parameters = InitAddDbParameters(command, contextKey);
 
-            using (var connection = _connectionProvider.GetConnection())
+            using (var connection = _connectionProvider.GetConnection() as SqlConnection)
             {
                 connection.Open();
                 var sqlcmd = InitAddDbCommand(connection, parameters, timeoutInMilliseconds);
@@ -157,7 +157,7 @@ namespace Paramore.Brighter.Inbox.MsSql
         {
             var parameters = InitAddDbParameters(command, contextKey);
 
-            using (var connection = await _connectionProvider.GetConnectionAsync(cancellationToken))
+            using (var connection = await _connectionProvider.GetConnectionAsync(cancellationToken) as SqlConnection)
             {
                 await connection.OpenAsync(cancellationToken).ConfigureAwait(ContinueOnCapturedContext);
                 var sqlcmd = InitAddDbCommand(connection, parameters, timeoutInMilliseconds);
@@ -258,10 +258,11 @@ namespace Paramore.Brighter.Inbox.MsSql
         private T ExecuteCommand<T>(Func<SqlCommand, T> execute, string sql, int timeoutInMilliseconds,
             params SqlParameter[] parameters)
         {
-            using (var connection = _connectionProvider.GetConnection())
+            using (var connection = _connectionProvider.GetConnection() as SqlConnection)
             using (var command = connection.CreateCommand())
             {
-                if (timeoutInMilliseconds != -1) command.CommandTimeout = timeoutInMilliseconds;
+                if (timeoutInMilliseconds != -1)
+                    command.CommandTimeout = timeoutInMilliseconds;
                 command.CommandText = sql;
                 command.Parameters.AddRange(parameters);
 
@@ -278,10 +279,11 @@ namespace Paramore.Brighter.Inbox.MsSql
             CancellationToken cancellationToken = default(CancellationToken),
             params SqlParameter[] parameters)
         {
-            using (var connection = await _connectionProvider.GetConnectionAsync(cancellationToken))
+            using (var connection = await _connectionProvider.GetConnectionAsync(cancellationToken) as SqlConnection)
             using (var command = connection.CreateCommand())
             {
-                if (timeoutInMilliseconds != -1) command.CommandTimeout = timeoutInMilliseconds;
+                if (timeoutInMilliseconds != -1)
+                    command.CommandTimeout = timeoutInMilliseconds;
                 command.CommandText = sql;
                 command.Parameters.AddRange(parameters);
 
@@ -297,7 +299,8 @@ namespace Paramore.Brighter.Inbox.MsSql
                 $"insert into {_configuration.InBoxTableName} (CommandID, CommandType, CommandBody, Timestamp, ContextKey) values (@CommandID, @CommandType, @CommandBody, @Timestamp, @ContextKey)";
 
             var sqlcmd = connection.CreateCommand();
-            if (timeoutInMilliseconds != -1) sqlcmd.CommandTimeout = timeoutInMilliseconds;
+            if (timeoutInMilliseconds != -1)
+                sqlcmd.CommandTimeout = timeoutInMilliseconds;
 
             sqlcmd.CommandText = sqlAdd;
             sqlcmd.Parameters.AddRange(parameters);

@@ -26,37 +26,19 @@ namespace Paramore.Brighter.Outbox.MySql
             this IBrighterBuilder brighterBuilder, MySqlConfiguration configuration, Type connectionProvider, ServiceLifetime serviceLifetime = ServiceLifetime.Singleton)
         {
             brighterBuilder.Services.AddSingleton<MySqlConfiguration>(configuration);
-            brighterBuilder.Services.Add(new ServiceDescriptor(typeof(IMySqlConnectionProvider), connectionProvider, serviceLifetime));
+            brighterBuilder.Services.Add(new ServiceDescriptor(typeof(IAmATransactionConnectionProvider), connectionProvider, serviceLifetime));
 
             brighterBuilder.Services.Add(new ServiceDescriptor(typeof(IAmAnOutboxSync<Message>), BuildMySqlOutboxOutbox, serviceLifetime));
             brighterBuilder.Services.Add(new ServiceDescriptor(typeof(IAmAnOutboxAsync<Message>), BuildMySqlOutboxOutbox, serviceLifetime));
-             
+
             return brighterBuilder;
         }
-        
-         /// <summary>
-         /// Use this transaction provider to ensure that the Outbox and the Entity Store are correct
-         /// </summary>
-         /// <param name="brighterBuilder">Allows extension method</param>
-         /// <param name="connectionProvider">What is the tyoe of the connection provider</param>
-         /// <param name="serviceLifetime">What is the lifetime of registered interfaces</param>
-         /// <returns>Allows fluent syntax</returns>
-         /// This is paired with Use Outbox (above) when required
-         /// Registers the following
-         /// -- IAmABoxTransactionConnectionProvider: the provider of a connection for any existing transaction
-         public static IBrighterBuilder UseMySqTransactionConnectionProvider(
-             this IBrighterBuilder brighterBuilder, Type connectionProvider,
-             ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
-         {
-             brighterBuilder.Services.Add(new ServiceDescriptor(typeof(IAmABoxTransactionConnectionProvider), connectionProvider, serviceLifetime));
- 
-             return brighterBuilder;
-         }
-       
+
+
         private static MySqlOutboxSync BuildMySqlOutboxOutbox(IServiceProvider provider)
         {
             var config = provider.GetService<MySqlConfiguration>();
-            var connectionProvider = provider.GetService<IMySqlConnectionProvider>();
+            var connectionProvider = provider.GetService<IAmATransactionConnectionProvider>();
 
             return new MySqlOutboxSync(config, connectionProvider);
         }

@@ -1,8 +1,8 @@
-﻿using System.Threading;
+﻿using System.Data;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using Npgsql;
 
 namespace Paramore.Brighter.PostgreSql.EntityFrameworkCore
 {
@@ -10,7 +10,7 @@ namespace Paramore.Brighter.PostgreSql.EntityFrameworkCore
     /// A connection provider that uses the same connection as EF Core
     /// </summary>
     /// <typeparam name="T">The Db Context to take the connection from</typeparam>
-    public class PostgreSqlEntityFrameworkConnectionProvider<T> : IPostgreSqlTransactionConnectionProvider where T : DbContext
+    public class PostgreSqlEntityFrameworkConnectionProvider<T> : IAmATransactionConnectionProvider where T : DbContext
     {
         private readonly T _context;
 
@@ -27,9 +27,9 @@ namespace Paramore.Brighter.PostgreSql.EntityFrameworkCore
         /// Get the current connection of the database context
         /// </summary>
         /// <returns>The NpgsqlConnection that is in use</returns>
-        public NpgsqlConnection GetConnection()
+        public IDbConnection GetConnection()
         {
-            return (NpgsqlConnection)_context.Database.GetDbConnection();
+            return _context.Database.GetDbConnection();
         }
 
         /// <summary>
@@ -37,20 +37,18 @@ namespace Paramore.Brighter.PostgreSql.EntityFrameworkCore
         /// </summary>
         /// <param name="cancellationToken">A cancellation token</param>
         /// <returns></returns>
-        public Task<NpgsqlConnection> GetConnectionAsync(CancellationToken cancellationToken = default)
+        public Task<IDbConnection> GetConnectionAsync(CancellationToken cancellationToken = default)
         {
-            var tcs = new TaskCompletionSource<NpgsqlConnection>();
-            tcs.SetResult((NpgsqlConnection)_context.Database.GetDbConnection());
-            return tcs.Task;
+            return Task.FromResult(GetConnection());
         }
 
         /// <summary>
         /// Get the ambient Transaction
         /// </summary>
         /// <returns>The NpgsqlTransaction</returns>
-        public NpgsqlTransaction GetTransaction()
+        public IDbTransaction GetTransaction()
         {
-            return (NpgsqlTransaction)_context.Database.CurrentTransaction?.GetDbTransaction();
+            return _context.Database.CurrentTransaction?.GetDbTransaction();
         }
 
         public bool HasOpenTransaction { get => _context.Database.CurrentTransaction != null; }

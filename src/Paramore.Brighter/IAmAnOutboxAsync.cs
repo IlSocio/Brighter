@@ -55,7 +55,7 @@ namespace Paramore.Brighter
         /// <param name="cancellationToken">Allows the sender to cancel the request pipeline. Optional</param>
         /// <param name="transactionConnectionProvider">The Connection Provider to use for this call</param>
         /// <returns><see cref="Task"/>.</returns>
-        Task AddAsync(T message, int outBoxTimeout = -1, CancellationToken cancellationToken = default(CancellationToken), IAmABoxTransactionConnectionProvider transactionConnectionProvider = null);
+        Task AddAsync(T message, int outBoxTimeout = -1, CancellationToken cancellationToken = default(CancellationToken), IAmATransactionConnectionProvider transactionConnectionProvider = null);
 
         /// <summary>
         /// Awaitable Get the specified message identifier.

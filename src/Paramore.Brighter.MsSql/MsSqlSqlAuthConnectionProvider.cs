@@ -1,10 +1,11 @@
-﻿using System.Threading;
+﻿using System.Data;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 
 namespace Paramore.Brighter.MsSql
 {
-    public class MsSqlSqlAuthConnectionProvider : IMsSqlConnectionProvider
+    public class MsSqlSqlAuthConnectionProvider : IAmATransactionConnectionProvider
     {
         private readonly string _connectionString;
 
@@ -17,20 +18,17 @@ namespace Paramore.Brighter.MsSql
             _connectionString = configuration.ConnectionString;
         }
 
-        public SqlConnection GetConnection()
+        public IDbConnection GetConnection()
         {
             return new SqlConnection(_connectionString);
         }
 
-        public async Task<SqlConnection> GetConnectionAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IDbConnection> GetConnectionAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var tcs = new TaskCompletionSource<SqlConnection>(TaskCreationOptions.RunContinuationsAsynchronously);
-
-            tcs.SetResult(GetConnection());
-            return await tcs.Task;
+            return Task.FromResult(GetConnection());
         }
 
-        public SqlTransaction GetTransaction()
+        public IDbTransaction GetTransaction()
         {
             //This Connection Factory does not support Transactions 
             return null;

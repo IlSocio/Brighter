@@ -1,15 +1,15 @@
-﻿using System.Threading;
+﻿using System.Data;
+using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Paramore.Brighter.MsSql.EntityFrameworkCore
 {
-    public class MsSqlEntityFrameworkCoreConnectionProvider<T> : IMsSqlTransactionConnectionProvider where T : DbContext
+    public class MsSqlEntityFrameworkCoreConnectionProvider<T> : IAmATransactionConnectionProvider where T : DbContext
     {
         private readonly T _context;
-        
+
         /// <summary>
         /// Initialise a new instance of Ms Sql Connection provider using the Database Connection from an Entity Framework Core DbContext.
         /// </summary>
@@ -17,25 +17,24 @@ namespace Paramore.Brighter.MsSql.EntityFrameworkCore
         {
             _context = context;
         }
-        
-        public SqlConnection GetConnection()
+
+        public IDbConnection GetConnection()
         {
             //This line ensure that the connection has been initialised and that any required interceptors have been run before getting the connection
             _context.Database.CanConnect();
-            return (SqlConnection)_context.Database.GetDbConnection();
+            return _context.Database.GetDbConnection();
         }
 
-        public async Task<SqlConnection> GetConnectionAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IDbConnection> GetConnectionAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             //This line ensure that the connection has been initialised and that any required interceptors have been run before getting the connection
             await _context.Database.CanConnectAsync(cancellationToken);
-            return (SqlConnection)_context.Database.GetDbConnection();
+            return _context.Database.GetDbConnection();
         }
 
-        public SqlTransaction GetTransaction()
+        public IDbTransaction GetTransaction()
         {
-            var trans = (SqlTransaction)_context.Database.CurrentTransaction?.GetDbTransaction();
-            return trans;
+            return _context.Database.CurrentTransaction?.GetDbTransaction();
         }
 
         public bool HasOpenTransaction { get => _context.Database.CurrentTransaction != null; }

@@ -83,7 +83,7 @@ namespace Paramore.Brighter
         private bool _useExternalBus = false;
         private bool _useRequestReplyQueues = false;
         private IEnumerable<Subscription> _replySubscriptions;
-        private IAmABoxTransactionConnectionProvider _overridingBoxTransactionConnectionProvider = null;
+        private IAmATransactionConnectionProvider _overridingBoxTransactionConnectionProvider = null;
         
         private CommandProcessorBuilder()
         {
@@ -162,7 +162,7 @@ namespace Paramore.Brighter
         /// <param name="outbox">The Outbox.</param>
         /// <param name="boxTransactionConnectionProvider"></param>
         /// <returns>INeedARequestContext.</returns>
-        public INeedARequestContext ExternalBus(ExternalBusConfiguration configuration, IAmAnOutbox<Message> outbox, IAmABoxTransactionConnectionProvider boxTransactionConnectionProvider = null)
+        public INeedARequestContext ExternalBus(ExternalBusConfiguration configuration, IAmAnOutbox<Message> outbox, IAmATransactionConnectionProvider boxTransactionConnectionProvider = null)
         {
             _useExternalBus = true;
             _producers = configuration.ProducerRegistry;
@@ -320,7 +320,7 @@ namespace Paramore.Brighter
         /// <param name="outbox">The outbox.</param>
         /// <param name="boxTransactionConnectionProvider">The connection provider to use when adding messages to the bus</param>
         /// <returns>INeedARequestContext.</returns>
-        INeedARequestContext ExternalBus(ExternalBusConfiguration configuration, IAmAnOutbox<Message> outbox, IAmABoxTransactionConnectionProvider boxTransactionConnectionProvider = null);
+        INeedARequestContext ExternalBus(ExternalBusConfiguration configuration, IAmAnOutbox<Message> outbox, IAmATransactionConnectionProvider boxTransactionConnectionProvider = null);
         /// <summary>
         /// We don't send messages out of process
         /// </summary>
