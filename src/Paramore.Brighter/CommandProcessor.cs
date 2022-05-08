@@ -452,7 +452,7 @@ namespace Paramore.Brighter
             return DepositPost(request, _boxTransactionConnectionProvider);
         }
         
-        private Guid DepositPost<T>(T request, IAmABoxTransactionConnectionProvider connectionProvider) where T : class, IRequest
+        public Guid DepositPost<T>(T request, IAmABoxTransactionConnectionProvider transactionProvider) where T : class, IRequest
         {
             s_logger.LogInformation("Save request: {RequestType} {Id}", request.GetType(), request.Id);
 
@@ -465,7 +465,7 @@ namespace Paramore.Brighter
 
             var message = messageMapper.MapToMessage(request);
 
-            _bus.AddToOutbox(request, message, connectionProvider);
+            _bus.AddToOutbox(request, message, transactionProvider);
 
             return message.Id;
         }
